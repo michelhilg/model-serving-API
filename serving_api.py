@@ -1,15 +1,40 @@
-# Testing the load process of the model
+# Testing the prediction process over the use of the API
+from flask import Flask, request, jsonify
+import datetime
 import joblib
 from sklearn.linear_model import LinearRegression
 
-model = joblib.load('modelo.joblib')
+app = Flask(__name__)
 
-feature_1 = float(1)
-feature_2 = float(2)
+# Loading the model
+model = joblib.load("modelo.joblib")
 
-# Realizando a predição com o modelo
-prediction = model.predict([[feature_1, feature_2]])[0]
+# Route for the POST method
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        # Request data
+        feature_1 = float(request.json['feature_1'])
+        feature_2 = float(request.json['feature_2'])
 
-print(prediction)
+        # Model prediction
+        prediction = model.predict([[feature_1, feature_2]])[0]
+
+        # Generating the JSON answer
+        response = {
+            "data": datetime.datetime.utcnow().isoformat(),
+            "predicao": round(prediction, 5),
+            "id": "identificador_aqui"
+        }
+
+        return jsonify(response)
+
+    except Exception as e:
+        # Dealing with the errors
+        error_message = f"Request error: {str(e)}"
+        return jsonify({"error": error_message}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
