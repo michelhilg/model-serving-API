@@ -2,7 +2,6 @@
 from flask import Flask, request, jsonify
 import datetime
 import joblib
-from sklearn.linear_model import LinearRegression
 import pytz 
 
 app = Flask(__name__)
