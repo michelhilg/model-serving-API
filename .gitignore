@@ -1,2 +1,8 @@
+# Model file
+*.joblib
+
+# Database for ids
 *.db
+
+# .txt file for the logs
 *.txt
