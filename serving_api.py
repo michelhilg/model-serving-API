@@ -3,11 +3,15 @@ from flask import Flask, request, jsonify
 import datetime
 import joblib
 from sklearn.linear_model import LinearRegression
+import pytz 
 
 app = Flask(__name__)
 
 # Loading the model
 model = joblib.load("modelo.joblib")
+
+# Set the desired timezone to São Paulo
+desired_timezone = 'America/Sao_Paulo'
 
 # Route for the POST method
 @app.route('/predict', methods=['POST'])
@@ -17,14 +21,17 @@ def predict():
         feature_1 = float(request.json['feature_1'])
         feature_2 = float(request.json['feature_2'])
 
+        # Get the current time in São Paulo timezone
+        current_time = datetime.datetime.now(pytz.timezone(desired_timezone))
+
         # Model prediction
         prediction = model.predict([[feature_1, feature_2]])[0]
 
-        # Generating the JSON answer
+        # Generating the JSON response
         response = {
-            "data": datetime.datetime.utcnow().isoformat(),
+            "data": current_time.isoformat(),
             "predicao": round(prediction, 5),
-            "id": "identificador_aqui"
+            "id": "id_here"
         }
 
         return jsonify(response)
