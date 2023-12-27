@@ -2,7 +2,7 @@
 from flask import Flask, request, jsonify
 import datetime
 import joblib
-import pytz 
+import pytz
 
 app = Flask(__name__)
 
