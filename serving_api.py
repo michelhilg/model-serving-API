@@ -31,42 +31,55 @@ def get_db():
         db = g._database = sqlite3.connect(DATABASE)
     return db
 
+# Define the file and function for deal with the logs
+log_filename = "log.txt"
+def log(data):
+    with open(log_filename, "a") as log_file:
+        log_file.write(data + "\n")
+
 # Route for the POST method
 @app.route('/predict', methods=['POST'])
 def predict():
     global last_id
+
+    # Update the last id (using the autoincrement from SQLite)
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
+        conn.commit()
+        last_id = cursor.lastrowid
+
+    # Get the current time in São Paulo timezone in the isoformat
+    current_time = datetime.datetime.now(pytz.timezone(desired_timezone)).isoformat()
 
     try:
         # Request data
         feature_1 = float(request.json['feature_1'])
         feature_2 = float(request.json['feature_2'])
 
-        # Get the current time in São Paulo timezone
-        current_time = datetime.datetime.now(pytz.timezone(desired_timezone))
-
         # Model prediction
         prediction = model.predict([[feature_1, feature_2]])[0]
 
-        # Update the last id (using the autoincrement from SQLite)
-        with get_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
-            conn.commit()
-            last_id = cursor.lastrowid
-
         # Generating the JSON response
         response = {
-            "data": current_time.isoformat(),
+            "data": current_time,
             "predicao": round(prediction, 5),
             "id": last_id
         }
+
+        # Saving the success log
+        log(f"status: 200, id: {last_id}, data: {response['data']}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
 
         return jsonify(response)
 
     except Exception as e:
         # Dealing with the errors
         error_message = f"Request error: {str(e)}"
-        return jsonify({"error": error_message}), 500
+
+        # Saving the error log
+        log(f"status: 400, id: {last_id}, data: {current_time}, mensagem de erro: {error_message}")
+
+        return jsonify({"error": error_message}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
