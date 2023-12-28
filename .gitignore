@@ -6,3 +6,9 @@
 
 # .txt file for the logs
 *.txt
+
+# pycache
+__pycache__
+
+# .env
+*.env

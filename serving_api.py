@@ -1,87 +1,83 @@
-# Testing the prediction process over the use of the API
-from flask import Flask, request, jsonify, g
-import datetime
+from flask import Flask, g
 import joblib
-import pytz
 import sqlite3
+import logging
+from routes import register_routes
+import os
+from dotenv import find_dotenv, load_dotenv
+from database_tools import DatabaseManager
 
-app = Flask(__name__)
+# Load up the entries as environment variables
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path)
+MODEL_PATH = os.getenv("MODEL_PATH")                
+DATABASE_PATH = os.getenv("DATABASE_PATH")    
+DESIRED_TIMEZONE = os.getenv("DESIRED_TIMEZONE")       
+LOG_FILE_PATH = os.getenv("LOG_FILE_PATH") 
 
-# Loading the model
-model = joblib.load("modelo.joblib")
+class ModelServingAPI:
 
-# Set the desired timezone to São Paulo
-desired_timezone = 'America/Sao_Paulo'
+    """
+    A Python class using a Flask application for prediction a target value based on two features 
+    using a pretrained machine learning model in .joblib format.
+    """
 
-# Connection to the database and creation of the table if necessary
-DATABASE = 'identificadores_db.db'
-conn = sqlite3.connect(DATABASE)
-cursor = conn.cursor()
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS identificadores (
-        id INTEGER PRIMARY KEY
-    )
-''')
-conn.commit()
+    def __init__(self, model_path, database_path, desired_timezone, log_file_path):
+        """
+        Initialize the ModelServingAPI instance.
 
-# Function to further connect to the database
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
+        Parameters:
+        - model_path (str): Path to the machine learning model file.
+        - database_path (str): Path to the SQLite database file.
+        - desired_timezone (str): The desired timezone for date and time operations.
+        - log_file_path (str): Path to the text log file.
+        """
+        self.app = Flask(__name__)
+        self.model = self.load_model(model_path)
+        self.database_path = database_path
+        self.desired_timezone = desired_timezone
+        self.log_file_path = log_file_path
+        self.setup_app()
 
-# Define the file and function for deal with the logs
-log_filename = "log.txt"
-def log(data):
-    with open(log_filename, "a") as log_file:
-        log_file.write(data + "\n")
+    def load_model(self, model_path):
+        """
+        Load a machine learning model from the specified file path using joblib.
 
-# Route for the POST method
-@app.route('/predict', methods=['POST'])
-def predict():
-    global last_id
+        Returns:
+        - object: The loaded machine learning model.
+        """
+        try:
+            return joblib.load(model_path)
+        except Exception as e:
+            self.app_logger.error(f"Failed to load the model: {str(e)}")
+            raise
 
-    # Update the last id (using the autoincrement from SQLite)
-    with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
-        conn.commit()
-        last_id = cursor.lastrowid
+    def init_db(self):
+        """Create a database file and table if not exists using SQLite Python library."""
+        self.db_manager = DatabaseManager(self.database_path)
+    
+    def setup_logging(self):
+        """Define the custom logger for the application with format and information level."""
+        self.logger = logging.getLogger('model_serving_logger')
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+        file_handler = logging.FileHandler(self.log_file_path)
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+        self.logger.info("Application initialized")
+    
+    def register_routes(self):
+        """Register application routes and pass the required information for handling requests."""
+        register_routes(self.app, self.model, self.desired_timezone, self.logger)
 
-    # Get the current time in São Paulo timezone in the isoformat
-    current_time = datetime.datetime.now(pytz.timezone(desired_timezone)).isoformat()
-
-    try:
-        # Request data
-        feature_1 = float(request.json['feature_1'])
-        feature_2 = float(request.json['feature_2'])
-
-        # Model prediction
-        prediction = model.predict([[feature_1, feature_2]])[0]
-
-        # Generating the JSON response
-        response = {
-            "data": current_time,
-            "predicao": round(prediction, 5),
-            "id": last_id
-        }
-
-        # Saving the success log
-        log(f"status: 200, id: {last_id}, data: {response['data']}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
-
-        return jsonify(response)
-
-    except Exception as e:
-        # Dealing with the errors
-        error_message = f"Request error: {str(e)}"
-
-        # Saving the error log
-        log(f"status: 400, id: {last_id}, data: {current_time}, mensagem de erro: {error_message}")
-
-        return jsonify({"error": error_message}), 400
+    def setup_app(self):
+        self.init_db()
+        self.setup_logging()
+        self.register_routes()
+            
+    def run(self):
+        self.app.run(debug=True)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
-
+    model_serving_api = ModelServingAPI(MODEL_PATH, DATABASE_PATH, DESIRED_TIMEZONE, LOG_FILE_PATH)
+    model_serving_api.run()
