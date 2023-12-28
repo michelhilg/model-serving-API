@@ -10,6 +10,8 @@ Os requisitos para executar a aplicação estão inseridos dentro do arquivo env
 
 **OBS.:** O arquivo foi gerado em um sistema MacOs, podendo levar a conflitos em sistemas Windows ou Linux.
 
+Como segunda opção, consultar o arquivo `requirements.txt`
+
 ## Configuração
 
 1. **Clone o repositório:**
@@ -25,6 +27,17 @@ Os requisitos para executar a aplicação estão inseridos dentro do arquivo env
     conda env create -f environment.yml
     conda activate my_env
     ```
+    
+    Isso criará um ambiente Conda chamado `my_env` com as dependências especificadas no arquivo `environment.yml`.
+
+    Ou
+
+    ```bash
+    conda create --name my_env --file requirements.txt
+    conda activate my_env
+    ```
+
+   Isso criará um ambiente Conda chamado `my_env` com base nas especificações no arquivo `requirements.txt`.
 
 3. **Crie um arquivo de ambiente (`.env`) com as seguintes variáveis:**
 

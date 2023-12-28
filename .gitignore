@@ -5,7 +5,7 @@
 *.db
 
 # .txt file for the logs
-*.txt
+log.txt
 
 # pycache
 __pycache__
