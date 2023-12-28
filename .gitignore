@@ -6,3 +6,6 @@
 
 # .txt file for the logs
 *.txt
+
+# pycache
+__pycache__

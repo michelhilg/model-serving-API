@@ -1,20 +1,39 @@
-# Import dependencies
-from flask import Flask, request, jsonify, g
-import datetime
+from flask import Flask, g
 import joblib
-import pytz
 import sqlite3
 import logging
+from routes import register_routes
 
 class ModelServingAPI:
-    def __init__(self, model_path="modelo.joblib", database_path='identificadores_db.db', desired_timezone='America/Sao_Paulo'):
+    """
+    A Python class using a Flask application for prediction a target value based on two features 
+    using a pretrained machine learning model in .joblib format.
+    """
+
+    def __init__(self, model_path, database_path, desired_timezone, log_file_path):
+        """
+        Initialize the ModelServingAPI instance.
+
+        Parameters:
+        - model_path (str): Path to the machine learning model file.
+        - database_path (str): Path to the SQLite database file.
+        - desired_timezone (str): The desired timezone for date and time operations.
+        - log_file_path (str): Path to the text log file.
+        """
         self.app = Flask(__name__)
         self.model = self.load_model(model_path)
         self.database_path = database_path
         self.desired_timezone = desired_timezone
-        self.init_app()
+        self.log_file_path = log_file_path
+        self.setup_app()
 
     def load_model(self, model_path):
+        """
+        Load a machine learning model from the specified file path using joblib.
+
+        Returns:
+        - object: The loaded machine learning model.
+        """
         try:
             return joblib.load(model_path)
         except Exception as e:
@@ -22,6 +41,9 @@ class ModelServingAPI:
             raise
 
     def init_db(self):
+        """
+        Create a database file and table if not exists using SQLite Python library.
+        """
         conn = sqlite3.connect(self.database_path)
         cursor = conn.cursor()
         cursor.execute('''
@@ -32,73 +54,48 @@ class ModelServingAPI:
         conn.commit()
 
     def get_db(self):
-        db = getattr(g, '_database', None)
-        if db is None:
-            db = g._database = sqlite3.connect(self.database_path)
-        return db
+        """
+        Get the SQLite database connection. Step necessary due to the multithreading feature of Flask.
 
-    def init_app(self):
-        self.init_db()
-
-        # Set up logging
-        self.app_logger = logging.getLogger('application_logger')
-        self.app_logger.setLevel(logging.INFO)
+        Returns:
+        - sqlite3.Connection: SQLite database connection.
+        """
+        with self.app.app_context():  # Use app.app_context() to work within the Flask context
+            db = getattr(g, '_database', None)
+            if db is None:
+                db = g._database = sqlite3.connect(self.database_path)
+            return db
+    
+    def setup_logging(self):
+        self.logger = logging.getLogger('model_serving_logger')
+        self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-        file_handler = logging.FileHandler("app.txt")
+        file_handler = logging.FileHandler(self.log_file_path)
         file_handler.setFormatter(formatter)
-        self.app_logger.addHandler(file_handler)
-
-        self.app_logger.info("Application initialized")
-
-        # Route for the POST method
-        @self.app.route('/predict', methods=['POST'])
-        def predict():
-            #global last_id
-
-            # Update the last id (using the autoincrement from SQLite)
-            with self.get_db() as conn:
-                cursor = conn.cursor()
-                cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
-                conn.commit()
-                last_id = cursor.lastrowid
-
-            # Get the current time in São Paulo timezone in the isoformat
-            current_time = datetime.datetime.now(pytz.timezone(self.desired_timezone)).isoformat()
-
-            try:
-                # Request data
-                feature_1 = float(request.json['feature_1'])
-                feature_2 = float(request.json['feature_2'])
-
-                # Model prediction
-                prediction = self.model.predict([[feature_1, feature_2]])[0]
-
-                # Generating the JSON response
-                response = {
-                    "data": current_time,
-                    "predicao": round(prediction, 5),
-                    "id": last_id
-                }
-
-                # Saving the success log
-                self.app_logger.info(f"status: 200, id: {last_id}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
-                return jsonify(response)
-            
-            except ValueError as ve:
-                # Dealing with value errors
-                error_message = f"Invalid input data: {str(ve)}"
-                self.app_logger.error(f"status: 400, id: {last_id}, mensagem de erro: {error_message}")
-                return jsonify({"error": error_message}), 400
-
-            except Exception as e:
-                # Dealing with unexpected errors
-                error_message = f"Unexpected error: {str(e)}"
-                self.app_logger.error(f"status: 500, id: {last_id}, mensagem de erro: {error_message}")
-                return jsonify({"error": error_message}), 500
+        self.logger.addHandler(file_handler)
+        self.logger.info("Application initialized")
+    
+    def setup_app(self):
+        self.init_db()
+        self.setup_logging()
+        self.register_routes()
+  
+    def register_routes(self):
+        from routes import register_routes
+        with self.get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
+            conn.commit()
+            last_id = cursor.lastrowid
+        register_routes(self.app, self.model, self.desired_timezone, self.logger, last_id)
             
     def run(self):
         self.app.run(debug=True)
 
 if __name__ == '__main__':
-    my_app = ModelServingAPI()
-    my_app.run()
+    model_path = "modelo.joblib"                
+    database_path = "identificadores_db.db"    
+    desired_timezone = "America/Sao_Paulo"      
+    log_file_path = "log.txt"                   
+    model_serving_api = ModelServingAPI(model_path, database_path, desired_timezone, log_file_path)
+    model_serving_api.run()
