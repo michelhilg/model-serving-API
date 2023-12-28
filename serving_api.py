@@ -5,6 +5,7 @@ import logging
 from routes import register_routes
 
 class ModelServingAPI:
+    
     """
     A Python class using a Flask application for prediction a target value based on two features 
     using a pretrained machine learning model in .joblib format.
@@ -41,9 +42,7 @@ class ModelServingAPI:
             raise
 
     def init_db(self):
-        """
-        Create a database file and table if not exists using SQLite Python library.
-        """
+        """Create a database file and table if not exists using SQLite Python library."""
         conn = sqlite3.connect(self.database_path)
         cursor = conn.cursor()
         cursor.execute('''
@@ -67,6 +66,7 @@ class ModelServingAPI:
             return db
     
     def setup_logging(self):
+        """Define the custom logger for the application with format and information level."""
         self.logger = logging.getLogger('model_serving_logger')
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
@@ -75,19 +75,19 @@ class ModelServingAPI:
         self.logger.addHandler(file_handler)
         self.logger.info("Application initialized")
     
-    def setup_app(self):
-        self.init_db()
-        self.setup_logging()
-        self.register_routes()
-  
     def register_routes(self):
-        from routes import register_routes
+        """Register application routes and pass the required information for handling requests."""
         with self.get_db() as conn:
             cursor = conn.cursor()
             cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
             conn.commit()
             last_id = cursor.lastrowid
         register_routes(self.app, self.model, self.desired_timezone, self.logger, last_id)
+
+    def setup_app(self):
+        self.init_db()
+        self.setup_logging()
+        self.register_routes()
             
     def run(self):
         self.app.run(debug=True)
