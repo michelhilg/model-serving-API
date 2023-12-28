@@ -27,7 +27,7 @@ Como segunda opção, consultar o arquivo `requirements.txt`
     conda env create -f environment.yml
     conda activate my_env
     ```
-    
+
     Isso criará um ambiente Conda chamado `my_env` com as dependências especificadas no arquivo `environment.yml`.
 
     Ou
@@ -38,6 +38,8 @@ Como segunda opção, consultar o arquivo `requirements.txt`
     ```
 
    Isso criará um ambiente Conda chamado `my_env` com base nas especificações no arquivo `requirements.txt`.
+
+   **OBS.:** Caso encontre problemas, vale a pena conferir a incompatibilidade de OS.
 
 3. **Crie um arquivo de ambiente (`.env`) com as seguintes variáveis:**
 
@@ -54,8 +56,8 @@ Como segunda opção, consultar o arquivo `requirements.txt`
 
     Certifique-se de disponibilizar o modelo de machine learning adequado para aplicação, seguindo requisitos essenciais:
 
-    - Formato: .joblib
-    - Versão scikit-learn: 1.0.1
+    - Formato: `.joblib`
+    - Versão scikit-learn: `1.0.1`
 
     Arquitetura testada foi a LinearRegression, porém outras arquiteturas que recebam duas features de entrada também são compatíveis.
 
