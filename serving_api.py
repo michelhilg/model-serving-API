@@ -1,6 +1,5 @@
-from flask import Flask, g
+from flask import Flask
 import joblib
-import sqlite3
 import logging
 from routes import register_routes
 import os
