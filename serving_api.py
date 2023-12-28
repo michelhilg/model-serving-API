@@ -5,7 +5,7 @@ import logging
 from routes import register_routes
 
 class ModelServingAPI:
-    
+
     """
     A Python class using a Flask application for prediction a target value based on two features 
     using a pretrained machine learning model in .joblib format.
