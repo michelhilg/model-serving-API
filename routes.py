@@ -1,10 +1,8 @@
 from flask import jsonify, request, g
 import datetime
 import pytz
-#import sqlite3
 import os
 from dotenv import find_dotenv, load_dotenv
-#from database_tools import get_db
 from database_tools import DatabaseManager
 
 # Load up the entries as environment variables
@@ -34,7 +32,7 @@ def register_routes(app, model, desired_timezone, logger):
         Returns:
         - JSON: A JSON response with prediction results or error messages.
         """
-
+        # Autoincrement in SQLite for the request id
         with db_manager.get_db() as conn:
             cursor = conn.cursor()
             cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')

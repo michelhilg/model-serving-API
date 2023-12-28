@@ -15,8 +15,6 @@ DATABASE_PATH = os.getenv("DATABASE_PATH")
 DESIRED_TIMEZONE = os.getenv("DESIRED_TIMEZONE")       
 LOG_FILE_PATH = os.getenv("LOG_FILE_PATH") 
 
-#db_manager = DatabaseManager(DATABASE_PATH)
-
 class ModelServingAPI:
 
     """
@@ -54,33 +52,9 @@ class ModelServingAPI:
             self.app_logger.error(f"Failed to load the model: {str(e)}")
             raise
 
-    #def init_db(self):
-    #    """Create a database file and table if not exists using SQLite Python library."""
-    #    conn = sqlite3.connect(self.database_path)
-    #    cursor = conn.cursor()
-    #    cursor.execute('''
-    #        CREATE TABLE IF NOT EXISTS identificadores (
-    #            id INTEGER PRIMARY KEY
-    #        )
-    #    ''')
-    #    conn.commit()
-
     def init_db(self):
         """Create a database file and table if not exists using SQLite Python library."""
         self.db_manager = DatabaseManager(self.database_path)
-
-    #def get_db(self):
-    #    """
-    #    Get the SQLite database connection. Step necessary due to the multithreading feature of Flask.
-
-    #    Returns:
-    #    - sqlite3.Connection: SQLite database connection.
-    #    """
-    #    with self.app.app_context():  # Use app.app_context() to work within the Flask context
-    #        db = getattr(g, '_database', None)
-    #        if db is None:
-    #            db = g._database = sqlite3.connect(self.database_path)
-    #        return db
     
     def setup_logging(self):
         """Define the custom logger for the application with format and information level."""
