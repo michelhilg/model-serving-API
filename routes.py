@@ -1,8 +1,20 @@
-from flask import jsonify, request
+from flask import jsonify, request, g
 import datetime
 import pytz
+#import sqlite3
+import os
+from dotenv import find_dotenv, load_dotenv
+#from database_tools import get_db
+from database_tools import DatabaseManager
 
-def register_routes(app, model, desired_timezone, logger, last_id):
+# Load up the entries as environment variables
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path)
+DATABASE_PATH = os.getenv("DATABASE_PATH")
+
+db_manager = DatabaseManager(DATABASE_PATH)
+
+def register_routes(app, model, desired_timezone, logger):
     """
     Register routes for handling prediction requests.
 
@@ -22,6 +34,13 @@ def register_routes(app, model, desired_timezone, logger, last_id):
         Returns:
         - JSON: A JSON response with prediction results or error messages.
         """
+
+        with db_manager.get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
+            conn.commit()
+            last_id = cursor.lastrowid  
+
         current_time = datetime.datetime.now(pytz.timezone(desired_timezone)).isoformat()
 
         try:
