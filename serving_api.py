@@ -3,6 +3,16 @@ import joblib
 import sqlite3
 import logging
 from routes import register_routes
+import os
+from dotenv import find_dotenv, load_dotenv
+
+# Load up the entries as environment variables
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path)
+MODEL_PATH = os.getenv("MODEL_PATH")                
+DATABASE_PATH = os.getenv("DATABASE_PATH")    
+DESIRED_TIMEZONE = os.getenv("DESIRED_TIMEZONE")       
+LOG_FILE_PATH = os.getenv("LOG_FILE_PATH") 
 
 class ModelServingAPI:
 
@@ -77,12 +87,17 @@ class ModelServingAPI:
     
     def register_routes(self):
         """Register application routes and pass the required information for handling requests."""
-        with self.get_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
-            conn.commit()
-            last_id = cursor.lastrowid
-        register_routes(self.app, self.model, self.desired_timezone, self.logger, last_id)
+        with self.app.app_context():
+            with self.get_db() as conn:
+                cursor = conn.cursor()
+                cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
+                conn.commit()
+                #last_id = cursor.lastrowid
+                # Retrieve the last inserted ID within the same transaction
+                cursor.execute('SELECT last_insert_rowid()')
+                last_id = cursor.fetchone()[0]
+                print(last_id)
+            register_routes(self.app, self.model, self.desired_timezone, self.logger, last_id)
 
     def setup_app(self):
         self.init_db()
@@ -93,9 +108,5 @@ class ModelServingAPI:
         self.app.run(debug=True)
 
 if __name__ == '__main__':
-    model_path = "modelo.joblib"                
-    database_path = "identificadores_db.db"    
-    desired_timezone = "America/Sao_Paulo"      
-    log_file_path = "log.txt"                   
-    model_serving_api = ModelServingAPI(model_path, database_path, desired_timezone, log_file_path)
+    model_serving_api = ModelServingAPI(MODEL_PATH, DATABASE_PATH, DESIRED_TIMEZONE, LOG_FILE_PATH)
     model_serving_api.run()
