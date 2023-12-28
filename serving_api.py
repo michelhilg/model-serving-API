@@ -4,6 +4,7 @@ import datetime
 import joblib
 import pytz
 import sqlite3
+import logging
 
 app = Flask(__name__)
 
@@ -15,14 +16,15 @@ desired_timezone = 'America/Sao_Paulo'
 
 # Connection to the database and creation of the table if necessary
 DATABASE = 'identificadores_db.db'
-conn = sqlite3.connect(DATABASE)
-cursor = conn.cursor()
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS identificadores (
-        id INTEGER PRIMARY KEY
-    )
-''')
-conn.commit()
+def init_db():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS identificadores (
+            id INTEGER PRIMARY KEY
+        )
+    ''')
+    conn.commit()
 
 # Function to further connect to the database
 def get_db():
@@ -31,11 +33,16 @@ def get_db():
         db = g._database = sqlite3.connect(DATABASE)
     return db
 
-# Define the file and function for deal with the logs
-log_filename = "log.txt"
-def log(data):
-    with open(log_filename, "a") as log_file:
-        log_file.write(data + "\n")
+# Define the file for dealing with the logs 
+log_filename = "app.txt"
+
+# Create a custom logger
+app_logger = logging.getLogger('application_logger')
+app_logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+file_handler = logging.FileHandler(log_filename)
+file_handler.setFormatter(formatter)
+app_logger.addHandler(file_handler)
 
 # Route for the POST method
 @app.route('/predict', methods=['POST'])
@@ -68,20 +75,23 @@ def predict():
         }
 
         # Saving the success log
-        log(f"status: 200, id: {last_id}, data: {response['data']}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
-
+        app_logger.info(f"status: 200, id: {last_id}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
         return jsonify(response)
+    
+    except ValueError as ve:
+        # Dealing with value errors
+        error_message = f"Invalid input data: {str(ve)}"
+        app_logger.error(f"status: 400, id: {last_id}, mensagem de erro: {error_message}")
+        return jsonify({"error": error_message}), 400
 
     except Exception as e:
-        # Dealing with the errors
-        error_message = f"Request error: {str(e)}"
-
-        # Saving the error log
-        log(f"status: 400, id: {last_id}, data: {current_time}, mensagem de erro: {error_message}")
-
-        return jsonify({"error": error_message}), 400
+        # Dealing with unexpected errors
+        error_message = f"Unexpected error: {str(e)}"
+        app_logger.error(f"status: 500, id: {last_id}, mensagem de erro: {error_message}")
+        return jsonify({"error": error_message}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
+    init_db()
 
 
