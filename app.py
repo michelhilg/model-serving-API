@@ -1,10 +1,10 @@
 from flask import Flask
+from app.views import app_blueprint
 import joblib
 import logging
-from app.views import register_routes
 import os
 from dotenv import find_dotenv, load_dotenv
-from database_tools import DatabaseManager
+from database.database import DatabaseManager
 
 # Load up the entries as environment variables
 dotenv_path = find_dotenv()
@@ -67,11 +67,15 @@ class ModelServingAPI:
     
     def register_routes(self):
         """Register application routes and pass the required information for handling requests."""
-        register_routes(self.app, self.model, self.desired_timezone, self.logger)
+        #register_routes(self.app, self.model, self.desired_timezone, self.logger)
+        self.app.register_blueprint(app_blueprint)
 
     def setup_app(self):
         self.init_db()
         self.setup_logging()
+        self.app.model = self.model
+        self.app.desired_timezone = self.desired_timezone
+        self.app.logger = self.logger
         self.register_routes()
             
     def run(self):
