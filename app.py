@@ -2,17 +2,9 @@ from flask import Flask
 from app.views import app_blueprint
 import joblib
 import logging
-import os
-from dotenv import find_dotenv, load_dotenv
+from config import DevelopmentConfig, TestingConfig, ProductionConfig
 from database.database import DatabaseManager
-
-# Load up the entries as environment variables
-dotenv_path = find_dotenv()
-load_dotenv(dotenv_path)
-MODEL_PATH = os.getenv("MODEL_PATH")                
-DATABASE_PATH = os.getenv("DATABASE_PATH")    
-DESIRED_TIMEZONE = os.getenv("DESIRED_TIMEZONE")       
-LOG_FILE_PATH = os.getenv("LOG_FILE_PATH") 
+import argparse
 
 class ModelServingAPI:
 
@@ -21,7 +13,7 @@ class ModelServingAPI:
     using a pretrained machine learning model in .joblib format.
     """
 
-    def __init__(self, model_path, database_path, desired_timezone, log_file_path):
+    def __init__(self, mode):
         """
         Initialize the ModelServingAPI instance.
 
@@ -32,11 +24,20 @@ class ModelServingAPI:
         - log_file_path (str): Path to the text log file.
         """
         self.app = Flask(__name__)
-        self.model = self.load_model(model_path)
-        self.database_path = database_path
-        self.desired_timezone = desired_timezone
-        self.log_file_path = log_file_path
+        self.configure_app(mode)
+        self.model = self.load_model(self.app.config.get("MODEL_PATH"))
+        self.database_path = self.app.config.get("DATABASE_PATH")
+        self.desired_timezone = self.app.config.get("DESIRED_TIMEZONE")
+        self.log_file_path = self.app.config.get("LOG_FILE_PATH")
         self.setup_app()
+
+    def configure_app(self, mode):
+        if mode == "production":
+            self.app.config.from_object(ProductionConfig)
+        elif mode == "testing":
+            self.app.config.from_object(TestingConfig)
+        else:
+            self.app.config.from_object(DevelopmentConfig)
 
     def load_model(self, model_path):
         """
@@ -67,7 +68,6 @@ class ModelServingAPI:
     
     def register_routes(self):
         """Register application routes and pass the required information for handling requests."""
-        #register_routes(self.app, self.model, self.desired_timezone, self.logger)
         self.app.register_blueprint(app_blueprint)
 
     def setup_app(self):
@@ -76,11 +76,17 @@ class ModelServingAPI:
         self.app.model = self.model
         self.app.desired_timezone = self.desired_timezone
         self.app.logger = self.logger
+        self.app.database_path = self.database_path
         self.register_routes()
             
     def run(self):
         self.app.run(debug=True)
 
 if __name__ == '__main__':
-    model_serving_api = ModelServingAPI(MODEL_PATH, DATABASE_PATH, DESIRED_TIMEZONE, LOG_FILE_PATH)
+    # Use argparse to handle command-line arguments
+    parser = argparse.ArgumentParser(description="Run the ModelServingAPI application.")
+    parser.add_argument('--mode', choices=['development', 'production', 'testing'], default='development', help="Specify the execution mode.")
+    args = parser.parse_args()
+    
+    model_serving_api = ModelServingAPI(args.mode)
     model_serving_api.run()

@@ -1,17 +1,9 @@
 from flask import Blueprint, jsonify, request, current_app
 import datetime
 import pytz
-import os
-from dotenv import find_dotenv, load_dotenv
 from database.database import DatabaseManager
 
 app_blueprint = Blueprint('app', __name__)
-
-# Load up the entries as environment variables
-dotenv_path = find_dotenv()
-load_dotenv(dotenv_path)
-DATABASE_PATH = os.getenv("DATABASE_PATH")
-db_manager = DatabaseManager(DATABASE_PATH)
 
 @app_blueprint.route('/predict', methods=['POST'])
 def predict():
@@ -25,7 +17,9 @@ def predict():
     model = current_app.model
     desired_timezone = current_app.desired_timezone
     logger = current_app.logger
+    database_path = current_app.database_path
 
+    db_manager = DatabaseManager(database_path)
 
     # Autoincrement in SQLite for the request id
     with db_manager.get_db() as conn:
