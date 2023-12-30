@@ -6,11 +6,11 @@ O ModelServingAPI é uma aplicação Python que utiliza o framework Flask para f
 
 ## Pré-requisitos
 
-Os requisitos para executar a aplicação estão inseridos dentro do arquivo environment.yml que pode ser carregado através do genrenciador de pacotes conda.
+Os requisitos para executar a aplicação estão inseridos dentro do arquivo `environment.yml `environment.yml que pode ser carregado através do genrenciador de pacotes conda.
 
 **OBS.:** O arquivo foi gerado em um sistema MacOs, podendo levar a conflitos em sistemas Windows ou Linux.
 
-Como segunda opção, consultar o arquivo `requirements.txt`
+Como segunda opção, consultar o arquivo `requirements.txt`.
 
 ## Configuração
 
