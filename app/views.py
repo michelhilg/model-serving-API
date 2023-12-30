@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app
-from flask_restx import Resource, Api
+from flask_restx import Resource, Api, fields
 import datetime
 import pytz
 from database.database import DatabaseManager
@@ -9,11 +9,17 @@ app_blueprint = Blueprint('app', __name__)
 api = Api(app_blueprint, version='1.0', title='Model Serving API', description='API for AI model predictions.')
 ns = api.namespace('prediction', description='Prediction related operations')
 
+prediction_model = api.model("prediction", {
+    "feature_1": fields.Float(description="Feature 1"),
+    "feature_2": fields.Float(description="Feature 2")
+})
+
 @ns.route('/results')
 class PredictResource(Resource):
+    @api.expect(prediction_model)  # Use @api.expect to specify the expected request body model
     def post(self):
         """
-        Handle POST requests to the '/prediction/results' endpoint.
+        Handle POST requests via JSON body to collect the prediction of the ML model.
 
         Returns:
         - A JSON response with prediction results or error messages.
