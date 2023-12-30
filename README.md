@@ -6,11 +6,11 @@ O ModelServingAPI é uma aplicação Python que utiliza o framework Flask para f
 
 ## Pré-requisitos
 
-Os requisitos para executar a aplicação estão inseridos dentro do arquivo environment.yml que pode ser carregado através do genrenciador de pacotes conda.
+Os requisitos para executar a aplicação estão inseridos dentro do arquivo `environment.yml `environment.yml que pode ser carregado através do genrenciador de pacotes conda.
 
 **OBS.:** O arquivo foi gerado em um sistema MacOs, podendo levar a conflitos em sistemas Windows ou Linux.
 
-Como segunda opção, consultar o arquivo `requirements.txt`
+Como segunda opção, consultar o arquivo `requirements.txt`.
 
 ## Configuração
 
@@ -44,13 +44,28 @@ Como segunda opção, consultar o arquivo `requirements.txt`
 3. **Crie um arquivo de ambiente (`.env`) com as seguintes variáveis:**
 
     ```dotenv
-    MODEL_PATH=/caminho/para/seu/modelo.joblib
-    DATABASE_PATH=/caminho/para/seu/banco-de-dados.db
-    DESIRED_TIMEZONE=sua_timezone
-    LOG_FILE_PATH=/caminho/para/seu/arquivo-de-log.log
+    # Production Mode
+    MODEL_PATH_PRODUCTION = "model_path_here.joblib"                
+    DATABASE_PATH_PRODUCTION = "database_path_here.db"    
+    DESIRED_TIMEZONE_PRODUCTION = "timezone_here"      
+    LOG_FILE_PATH_PRODUCTION = "log_path_here.txt"  
+
+    # Testing Variables
+    MODEL_PATH_TESTING = "model_path_here.joblib"                
+    DATABASE_PATH_TESTING = "database_path_here.db"    
+    DESIRED_TIMEZONE_TESTING = "timezone_here"      
+    LOG_FILE_PATH_TESTING = "log_path_here.txt"  
+
+    # Development Variables
+    MODEL_PATH_DEVELOPMENT = "model_path_here.joblib"                
+    DATABASE_PATH_DEVELOPMENT = "database_path_here.db"    
+    DESIRED_TIMEZONE_DEVELOPMENT = "timezone_here"      
+    LOG_FILE_PATH_DEVELOPMENT = "log_path_here.txt" 
     ```
 
-   Certifique-se de ajustar os caminhos de acordo com a localização dos seus arquivos. O arquivo pode ser criado utilizando-se como base o arquivo .env-template.
+   Certifique-se de ajustar os caminhos de acordo com a localização dos seus arquivos. O arquivo pode ser criado utilizando-se como base o arquivo .env.template.
+
+   Essa aplicação possuí um arquivo `config.py` o qual carrega as informações definidas dentro do `.env` para cada modo ambiente de execução definido acima.
 
 4. **Modelo**
 
@@ -63,13 +78,17 @@ Como segunda opção, consultar o arquivo `requirements.txt`
 
 ## Uso
 
-- **Para iniciar a API, execute o seguinte comando:**
+- **Para iniciar a API em modo `development`, execute o seguinte comando:**
 
     ```bash
-    python serving_api.py
+    python app.py --mode development
     ```
 
     A API estará acessível em [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+
+    Substituia  `-- mode testing` e `-- mode production` para rodar nos demais modos.
+
+    - **OBS.:** Pra rodar em modo produção, tenha certeza de configura um server WSIG como Gunicorn anteriormente.
 
 ### Rotas
 
