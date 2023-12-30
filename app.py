@@ -5,6 +5,7 @@ import logging
 from config import DevelopmentConfig, TestingConfig, ProductionConfig
 from database.database import DatabaseManager
 import argparse
+import subprocess
 
 class ModelServingAPI:
 
@@ -81,13 +82,14 @@ class ModelServingAPI:
         self.register_routes()
             
     def run(self):
-        self.app.run(debug=True)
+        self.app.run()
 
 if __name__ == '__main__':
-    # Use argparse to handle command-line arguments
     parser = argparse.ArgumentParser(description="Run the ModelServingAPI application.")
     parser.add_argument('--mode', choices=['development', 'production', 'testing'], default='development', help="Specify the execution mode.")
     args = parser.parse_args()
     
     model_serving_api = ModelServingAPI(args.mode)
     model_serving_api.run()
+
+
