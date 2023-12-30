@@ -92,7 +92,9 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
 
 ### Rotas
 
-- **`POST /predict`:** Envie dados de features no corpo da solicitação para obter uma previsão. Exemplo de corpo da solicitação:
+Você pode acessar as informações da API, como métodos definidos, acessando [http://127.0.0.1:5000/](http://127.0.0.1:5000/) via `Swagger`.
+
+- **`POST /prediction/results`:** Envie dados de features no corpo da solicitação para obter uma previsão. Exemplo de corpo da solicitação:
 
     ```json
     {
@@ -100,6 +102,8 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
         "feature_2": 1.0
     }
     ```
+
+    Para testar essa aplicação você pode usar ferramentas como o `Postman`, ótimo para teste de APIs.
 
 ## Banco de Dados
 

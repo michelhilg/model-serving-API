@@ -32,6 +32,7 @@ class ModelServingAPI:
         self.setup_app()
 
     def configure_app(self, mode):
+        """Configure App based on the --mode parameter"""
         if mode == "production":
             self.app.config.from_object(ProductionConfig)
         elif mode == "testing":
