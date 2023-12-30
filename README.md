@@ -88,7 +88,7 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
 
     Substituia  `-- mode testing` e `-- mode production` para rodar nos demais modos.
 
-    - **OBS.:** Pra rodar em modo produção, tenha certeza de configura um server WSIG como Gunicorn anteriormente.
+    - **OBS.:** Esse aplicativo usa o server built-in do Flask por estar em modo desenvolvimento, caso seja necessário rodar em modo produção é recomendado o uso de um server WSIG como `Gunicorn`.
 
 ### Rotas
 
