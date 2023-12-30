@@ -1,7 +1,7 @@
 from flask import Flask
 import joblib
 import logging
-from routes import register_routes
+from app.views import register_routes
 import os
 from dotenv import find_dotenv, load_dotenv
 from database_tools import DatabaseManager
