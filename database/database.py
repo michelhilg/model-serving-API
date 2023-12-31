@@ -14,8 +14,12 @@ class DatabaseManager:
         conn = sqlite3.connect(self.database_path)
         cursor = conn.cursor()
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS identificadores (
-                id INTEGER PRIMARY KEY
+            CREATE TABLE IF NOT EXISTS results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                feature_1 REAL,
+                feature_2 REAL,
+                prediction REAL
             )
         ''')
         conn.commit()
@@ -32,3 +36,15 @@ class DatabaseManager:
         if db is None:
             db = g._database = sqlite3.connect(self.database_path)
         return db
+    
+    def write(self, timestamp, feature_1, feature_2, prediction):
+        """Writes the specify data into the database"""
+        with self.get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO results (timestamp, feature_1, feature_2, prediction)
+                VALUES (?, ?, ?, ?)
+            ''', (timestamp, feature_1, feature_2, prediction))
+            conn.commit()
+            last_id = cursor.lastrowid 
+            return last_id
