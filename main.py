@@ -3,8 +3,8 @@ from app.views import app_blueprint
 import joblib
 import logging
 from config import DevelopmentConfig, TestingConfig, ProductionConfig
-from database.database import DatabaseManager
 import argparse
+from database import database
 
 class ModelServingAPI:
 
@@ -19,16 +19,17 @@ class ModelServingAPI:
 
         Parameters:
         - model_path (str): Path to the machine learning model file.
-        - database_path (str): Path to the SQLite database file.
         - desired_timezone (str): The desired timezone for date and time operations.
         - log_file_path (str): Path to the text log file.
         """
         self.app = Flask(__name__)
         self.configure_app(mode)
         self.model = self.load_model(self.app.config.get("MODEL_PATH"))
-        self.database_path = self.app.config.get("DATABASE_PATH")
         self.desired_timezone = self.app.config.get("DESIRED_TIMEZONE")
         self.log_file_path = self.app.config.get("LOG_FILE_PATH")
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = self.app.config.get("SQLALCHEMY_DATABASE_URI")
+        print(self.app.config['SQLALCHEMY_DATABASE_URI'])
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = self.app.config.get("SQLALCHEMY_TRACK_MODIFICATIONS") 
         self.setup_app()
 
     def configure_app(self, mode):
@@ -52,10 +53,6 @@ class ModelServingAPI:
         except Exception as e:
             self.app_logger.error(f"Failed to load the model: {str(e)}")
             raise
-
-    def init_db(self):
-        """Create a database file and table if not exists using SQLite Python library."""
-        self.db_manager = DatabaseManager(self.database_path)
     
     def setup_logging(self):
         """Define the custom logger for the application with format and information level."""
@@ -72,12 +69,14 @@ class ModelServingAPI:
         self.app.register_blueprint(app_blueprint)
 
     def setup_app(self):
-        self.init_db()
+        # New
+        database.init_app(self.app)
+        #with self.app.app_context():
+        #   db.create_all()
         self.setup_logging()
         self.app.model = self.model
         self.app.desired_timezone = self.desired_timezone
         self.app.logger = self.logger
-        self.app.database_path = self.database_path
         self.register_routes()
             
     def run(self):
