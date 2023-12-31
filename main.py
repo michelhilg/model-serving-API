@@ -6,73 +6,59 @@ from config import DevelopmentConfig, TestingConfig, ProductionConfig
 import argparse
 from database.database import DBManager
 
-class ModelServingAPI:
-
-    """
-    A Python class using a Flask application for prediction a target value based on two features 
-    using a pretrained machine learning model in .joblib format.
-    """
-
-    def __init__(self, mode):
-        """Initialize the ModelServingAPI instance."""
-        self.app = Flask(__name__)
-        self.configure_app(mode)
-        self.model = self.load_model(self.app.config.get("MODEL_PATH"))
-        self.desired_timezone = self.app.config.get("DESIRED_TIMEZONE")
-        self.log_file_path = self.app.config.get("LOG_FILE_PATH")
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = self.app.config.get("SQLALCHEMY_DATABASE_URI")
-        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = self.app.config.get("SQLALCHEMY_TRACK_MODIFICATIONS") 
-        self.setup_app()
-
-    def configure_app(self, mode):
-        """Configure App based on the --mode parameter"""
-        if mode == "production":
-            self.app.config.from_object(ProductionConfig)
-        elif mode == "testing":
-            self.app.config.from_object(TestingConfig)
-        else:
-            self.app.config.from_object(DevelopmentConfig)
-
-    def load_model(self, model_path):
-        """Load a machine learning model from the specified file path using joblib."""
-        try:
-            return joblib.load(model_path)
-        except Exception as e:
-            self.app_logger.error(f"Failed to load the model: {str(e)}")
-            raise
+def create_app(mode):
+    """Initialize the Flask application"""
+    app = Flask(__name__)
     
-    def setup_logging(self):
-        """Define the custom logger for the application with format and information level."""
-        self.logger = logging.getLogger('model_serving_logger')
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-        file_handler = logging.FileHandler(self.log_file_path)
-        file_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.info("Application initialized")
-    
-    def setup_app(self):
-        db_manager = DBManager()
-        db_manager.init_table(self.app)
-        self.setup_logging()
-        self.app.model = self.model
-        self.app.desired_timezone = self.desired_timezone
-        self.app.logger = self.logger
-        self.app.register_blueprint(app_blueprint)
-            
-    def run(self):
-        return self.app
+    app.config.from_object(get_config(mode))
+    app.model = load_model(app.config.get("MODEL_PATH"))
+    app.desired_timezone = app.config.get("DESIRED_TIMEZONE")
+    log_file_path = app.config.get("LOG_FILE_PATH")
+    app.logger = setup_logging(log_file_path)
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config.get("SQLALCHEMY_DATABASE_URI")
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = app.config.get("SQLALCHEMY_TRACK_MODIFICATIONS") 
 
-def create_app():
-    model_serving_api = ModelServingAPI("production")
-    return model_serving_api.run()  
+    db_manager = DBManager()
+    db_manager.init_table(app)
 
-if __name__ == '__main__':
+    app.register_blueprint(app_blueprint)
+
+    return app
+
+def get_config(mode):
+    if mode == "production":
+        return ProductionConfig
+    elif mode == "testing":
+        return TestingConfig
+    else:
+        return DevelopmentConfig
+
+def load_model(model_path):
+    try:
+        return joblib.load(model_path)
+    except Exception as e:
+        logging.error(f"Failed to load the model: {str(e)}")
+        raise
+
+def setup_logging(log_file_path):
+    """Set up the custom log for the application."""
+    logger = logging.getLogger('model_serving_logger')
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    logger.info("Application initialized")
+    return logger
+
+def parse_arguments():
+    """Enable the selection of the environment from the command line."""
     parser = argparse.ArgumentParser(description="Run the ModelServingAPI application.")
     parser.add_argument('--mode', choices=['development', 'testing'], default='development', help="Specify the execution mode.")
     args = parser.parse_args()
-    
-    model_serving_api = ModelServingAPI(args.mode)
-    myapp = model_serving_api.run().run()
+    return args.mode
 
-
+if __name__ == '__main__':
+    mode = parse_arguments()
+    myapp = create_app(mode)
+    myapp.run()
