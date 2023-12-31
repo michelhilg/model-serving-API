@@ -64,8 +64,10 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
     ```
 
    Certifique-se de ajustar os caminhos de acordo com a localização dos seus arquivos. O arquivo pode ser criado utilizando-se como base o arquivo .env.template.
-
+   
    Essa aplicação possuí um arquivo `config.py` o qual carrega as informações definidas dentro do `.env` para cada modo ambiente de execução definido acima.
+
+   Para os arquivos `database.db`, `modelo.joblib` e `log.txt`, você pode usar a estrutura de pastas recomendada se preferir.
 
 4. **Modelo**
 
@@ -86,9 +88,20 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
 
     A API estará acessível em [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
-    Substituia  `-- mode testing` e `-- mode production` para rodar nos demais modos.
+    Substituia  `-- mode testing` para rodar no modo de teste.
 
-    - **OBS.:** Esse aplicativo usa o server built-in do Flask por estar em modo desenvolvimento, caso seja necessário rodar em modo produção é recomendado o uso de um server WSIG como `Gunicorn`.
+- **Para iniciar a API em modo `production`, execute o seguinte comando:**
+
+    Esse aplicativo usa o server built-in do Flask por estar em modo desenvolvimento, em modo produção é recomendado o uso de um server WSIG como `Gunicorn` com comando abaixo:
+
+    ```bash
+    gunicorn --preload -w 4 -b 0.0.0.0:8000 "main:create_app()”
+    ```
+
+    Em que:
+
+    - `w` = Número de workers.
+    - `b` = IP e porta do server.
 
 ### Rotas
 
@@ -107,7 +120,7 @@ Você pode acessar as informações da API, como métodos definidos, acessando [
 
 ## Banco de Dados
 
-A aplicação utiliza um banco de dados SQLite para armazenar identificadores de solicitações. A tabela identificadores é automaticamente criada se não existir e o ID de cada requisição é incrementado automaticamente.
+A aplicação utiliza um banco de dados SQLite para armazenar os dados das solicitações à API. A tabela identificadores é automaticamente criada se não existir e o `id` de cada requisição é incrementado automaticamente. Para requisições realizadas com sucesso os valores de `feature_1`, `feature_2` e `predicao`, também são gravados.
 
 ## Log
 
