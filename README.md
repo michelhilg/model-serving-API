@@ -67,7 +67,7 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
    
    Essa aplicação possuí um arquivo `config.py` o qual carrega as informações definidas dentro do `.env` para cada modo ambiente de execução definido acima.
 
-   Para os arquivos `database.db`, `modelo.joblib` e `log.txt`, você pode usar a estrutura de pastas recomendada se preferir.
+   Para os arquivos `db.sqlite3`, `modelo.joblib` e `log.txt`, você pode usar a estrutura de pastas recomendada se preferir.
 
 4. **Modelo**
 
@@ -95,7 +95,7 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
     Esse aplicativo usa o server built-in do Flask por estar em modo desenvolvimento, em modo produção é recomendado o uso de um server WSIG como `Gunicorn` com comando abaixo:
 
     ```bash
-    gunicorn --preload -w 4 -b 0.0.0.0:8000 "main:create_app()”
+    gunicorn --preload -w 4 -b 0.0.0.0:8000 "main:create_app('producon')”
     ```
 
     Em que:
@@ -120,7 +120,9 @@ Você pode acessar as informações da API, como métodos definidos, acessando [
 
 ## Banco de Dados
 
-A aplicação utiliza um banco de dados SQLite para armazenar os dados das solicitações à API. A tabela identificadores é automaticamente criada se não existir e o `id` de cada requisição é incrementado automaticamente. Para requisições realizadas com sucesso os valores de `feature_1`, `feature_2` e `predicao` também são gravados.
+A aplicação utiliza um banco de dados SQLite para armazenar os dados das solicitações à API via SQLAlchemy. O arquivo de banco de dados e tabela `prediction` são automaticamente criados se não existir. O `id` de cada requisição é incrementado automaticamente. Para requisições realizadas com sucesso os valores de `feature_1`, `feature_2` e `predicao` também são gravados.
+
+Lembre-se de configurar o caminho de sua database no arquivo de ambiente `.env`.
 
 ## Log
 

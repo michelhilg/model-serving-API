@@ -1,50 +1,29 @@
-import sqlite3
-from flask import g
+from flask_sqlalchemy import SQLAlchemy
 
-class DatabaseManager:
-    """A Python class using sqlite3 for database related methods."""
-    
-    def __init__(self, database_path):
-        """Initialize the DatabaseManager instance."""
-        self.database_path = database_path
-        self._init_db()
+db = SQLAlchemy()
 
-    def _init_db(self):
-        """Initialize the database by creating a table if it doesn't exist."""
-        conn = sqlite3.connect(self.database_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS results (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT,
-                feature_1 REAL,
-                feature_2 REAL,
-                prediction REAL
-            )
-        ''')
-        conn.commit()
-        conn.close()
+class DBManager:
+    """A Python class using SQLAlchemy for database related methods."""
 
-    def get_db(self):
+    def __init__(self):
+        self.db = db
+
+    def init_table(self, app):
+        self.db.init_app(app)
+        with app.app_context():
+            self.db.create_all()
+
+    def write_prediction(self, table_class, feature_1, feature_2, predicao):
         """
-        Get the SQLite database connection.
+        Write a new prediction in the database.
 
         Returns:
-        - sqlite3.Connection: SQLite database connection.
+        - The id of the prediction.
         """
-        db = getattr(g, '_database', None)
-        if db is None:
-            db = g._database = sqlite3.connect(self.database_path)
-        return db
-    
-    def write(self, timestamp, feature_1, feature_2, prediction):
-        """Writes the specify data into the database"""
-        with self.get_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO results (timestamp, feature_1, feature_2, prediction)
-                VALUES (?, ?, ?, ?)
-            ''', (timestamp, feature_1, feature_2, prediction))
-            conn.commit()
-            last_id = cursor.lastrowid 
-            return last_id
+        new_entry = table_class(feature_1=feature_1, feature_2=feature_2, predicao=predicao)
+        self.db.session.add(new_entry)
+        self.db.session.commit()
+
+        return new_entry.id
+
+
