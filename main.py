@@ -14,14 +14,7 @@ class ModelServingAPI:
     """
 
     def __init__(self, mode):
-        """
-        Initialize the ModelServingAPI instance.
-
-        Parameters:
-        - model_path (str): Path to the machine learning model file.
-        - desired_timezone (str): The desired timezone for date and time operations.
-        - log_file_path (str): Path to the text log file.
-        """
+        """Initialize the ModelServingAPI instance."""
         self.app = Flask(__name__)
         self.configure_app(mode)
         self.model = self.load_model(self.app.config.get("MODEL_PATH"))
@@ -41,12 +34,7 @@ class ModelServingAPI:
             self.app.config.from_object(DevelopmentConfig)
 
     def load_model(self, model_path):
-        """
-        Load a machine learning model from the specified file path using joblib.
-
-        Returns:
-        - object: The loaded machine learning model.
-        """
+        """Load a machine learning model from the specified file path using joblib."""
         try:
             return joblib.load(model_path)
         except Exception as e:
@@ -63,19 +51,14 @@ class ModelServingAPI:
         self.logger.addHandler(file_handler)
         self.logger.info("Application initialized")
     
-    def register_routes(self):
-        """Register application routes and pass the required information for handling requests."""
-        self.app.register_blueprint(app_blueprint)
-
     def setup_app(self):
-        #database.init_app(self.app)
         db_manager = DBManager()
         db_manager.init_table(self.app)
         self.setup_logging()
         self.app.model = self.model
         self.app.desired_timezone = self.desired_timezone
         self.app.logger = self.logger
-        self.register_routes()
+        self.app.register_blueprint(app_blueprint)
             
     def run(self):
         return self.app

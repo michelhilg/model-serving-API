@@ -2,7 +2,7 @@
 *.joblib
 
 # Database for ids
-*.db
+*.sqlite3
 
 # .txt file for the logs
 log.txt
