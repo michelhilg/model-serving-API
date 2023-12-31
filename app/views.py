@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, current_app
 from flask_restx import Resource, Api, fields
 import datetime
 import pytz
-from database.database import db
+from database.database import DBManager
 from .models import Prediction
 
 app_blueprint = Blueprint('app', __name__)
@@ -14,6 +14,8 @@ prediction_model = api.model("prediction", {
     "feature_1": fields.Float(description="Feature 1"),
     "feature_2": fields.Float(description="Feature 2")
 })
+
+db_manager = DBManager()
 
 @ns.route('/results')
 class PredictResource(Resource):
@@ -37,32 +39,26 @@ class PredictResource(Resource):
             feature_2 = float(request.json['feature_2'])
             prediction = model.predict([[feature_1, feature_2]])[0]
 
-            pred = Prediction(feature_1=feature_1, feature_2=feature_2, predicao=prediction)
-            db.session.add(pred)
-            db.session.commit()
+            last_id = db_manager.write_prediction(Prediction, feature_1=feature_1, feature_2=feature_2, predicao=prediction)
 
             response = {
                 "data": current_time,
                 "predicao": round(prediction, 5),
-                "id": pred.id
+                "id": last_id
             }
             
-            logger.info(f"status: 200, id: {pred.id}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
+            logger.info(f"status: 200, id: {last_id}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
             return jsonify(response)
 
         except ValueError as ve: 
             # Handling value errors caused by invalid input data
-            pred = Prediction(feature_1=None, feature_2=None, predicao=None)
-            db.session.add(pred)
-            db.session.commit()
-            logger.error(f"status: 400, id: {pred.id}, mensagem de erro: {error_message}")
+            last_id = db_manager.write_prediction(Prediction, feature_1=None, feature_2=None, predicao=None)
+            logger.error(f"status: 400, id: {last_id}, mensagem de erro: {error_message}")
             return jsonify({"error": error_message}), 400
 
         except Exception as e:
             # Handling unexpected errors
             error_message = f"Unexpected error: {str(e)}"
-            pred = Prediction(feature_1=None, feature_2=None, predicao=None)
-            db.session.add(pred)
-            db.session.commit()
-            logger.error(f"status: 500, id: {pred.id}, mensagem de erro: {error_message}")
+            last_id = db_manager.write_prediction(Prediction, feature_1=None, feature_2=None, predicao=None)
+            logger.error(f"status: 500, id: {last_id}, mensagem de erro: {error_message}")
             return jsonify({"error": error_message}), 500

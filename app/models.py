@@ -2,6 +2,7 @@ from database.database import db
 import datetime
 
 class Prediction(db.Model):
+    """Create the model for the prediction table on the database."""
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.now())
     feature_1 = db.Column(db.Float, unique=False)

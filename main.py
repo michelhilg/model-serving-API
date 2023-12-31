@@ -4,7 +4,7 @@ import joblib
 import logging
 from config import DevelopmentConfig, TestingConfig, ProductionConfig
 import argparse
-from database import database
+from database.database import DBManager
 
 class ModelServingAPI:
 
@@ -28,7 +28,6 @@ class ModelServingAPI:
         self.desired_timezone = self.app.config.get("DESIRED_TIMEZONE")
         self.log_file_path = self.app.config.get("LOG_FILE_PATH")
         self.app.config['SQLALCHEMY_DATABASE_URI'] = self.app.config.get("SQLALCHEMY_DATABASE_URI")
-        print(self.app.config['SQLALCHEMY_DATABASE_URI'])
         self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = self.app.config.get("SQLALCHEMY_TRACK_MODIFICATIONS") 
         self.setup_app()
 
@@ -69,10 +68,9 @@ class ModelServingAPI:
         self.app.register_blueprint(app_blueprint)
 
     def setup_app(self):
-        # New
-        database.init_app(self.app)
-        #with self.app.app_context():
-        #   db.create_all()
+        #database.init_app(self.app)
+        db_manager = DBManager()
+        db_manager.init_table(self.app)
         self.setup_logging()
         self.app.model = self.model
         self.app.desired_timezone = self.desired_timezone
