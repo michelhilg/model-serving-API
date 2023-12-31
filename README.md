@@ -120,7 +120,7 @@ Você pode acessar as informações da API, como métodos definidos, acessando [
 
 ## Banco de Dados
 
-A aplicação utiliza um banco de dados SQLite para armazenar os dados das solicitações à API. A tabela identificadores é automaticamente criada se não existir e o `id` de cada requisição é incrementado automaticamente. Para requisições realizadas com sucesso os valores de `feature_1`, `feature_2` e `predicao`, também são gravados.
+A aplicação utiliza um banco de dados SQLite para armazenar os dados das solicitações à API. A tabela identificadores é automaticamente criada se não existir e o `id` de cada requisição é incrementado automaticamente. Para requisições realizadas com sucesso os valores de `feature_1`, `feature_2` e `predicao` também são gravados.
 
 ## Log
 

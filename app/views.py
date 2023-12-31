@@ -16,7 +16,7 @@ prediction_model = api.model("prediction", {
 
 @ns.route('/results')
 class PredictResource(Resource):
-    @api.expect(prediction_model)  # Use @api.expect to specify the expected request body model
+    @api.expect(prediction_model)
     def post(self):
         """
         Handle POST requests via JSON body to collect the prediction of the ML model.
@@ -32,13 +32,6 @@ class PredictResource(Resource):
 
         db_manager = DatabaseManager(database_path)
 
-        # Autoincrement in SQLite for the request id
-        with db_manager.get_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO identificadores (id) VALUES (NULL)')
-            conn.commit()
-            last_id = cursor.lastrowid  
-
         current_time = datetime.datetime.now(pytz.timezone(desired_timezone)).isoformat()
 
         try:
@@ -46,23 +39,27 @@ class PredictResource(Resource):
             feature_2 = float(request.json['feature_2'])
             prediction = model.predict([[feature_1, feature_2]])[0]
 
+            last_id = db_manager.write(current_time, feature_1, feature_2, prediction)
+
             response = {
                 "data": current_time,
                 "predicao": round(prediction, 5),
                 "id": last_id
             }
-
+            
             logger.info(f"status: 200, id: {last_id}, feature_1: {feature_1}, feature_2: {feature_2}, predição: {prediction}")
             return jsonify(response)
 
-        except ValueError as ve:
+        except ValueError as ve: 
             # Handling value errors caused by invalid input data
             error_message = f"Invalid input data: {str(ve)}"
+            last_id = db_manager.write(current_time, feature_1=None, feature_2=None, prediction=None)
             logger.error(f"status: 400, id: {last_id}, mensagem de erro: {error_message}")
             return jsonify({"error": error_message}), 400
 
         except Exception as e:
             # Handling unexpected errors
             error_message = f"Unexpected error: {str(e)}"
+            last_id = db_manager.write(current_time, feature_1=None, feature_2=None, prediction=None)
             logger.error(f"status: 500, id: {last_id}, mensagem de erro: {error_message}")
             return jsonify({"error": error_message}), 500
