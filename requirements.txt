@@ -1,31 +1,45 @@
-# This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
-# platform: osx-arm64
-@EXPLICIT
-https://conda.anaconda.org/conda-forge/osx-arm64/ca-certificates-2023.11.17-hf0a4a13_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/libcxx-14.0.6-h848a8c0_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/libffi-3.4.4-hca03da5_0.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-17.0.6-hcd81f8e_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/ncurses-6.4-h313beb8_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/xz-5.4.5-h80987f9_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/zlib-1.2.13-h5a0b063_0.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran5-13.2.0-hf226fd6_1.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.2.0-h0d3ecfb_1.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/readline-8.2-h1a28f6b_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/tk-8.6.12-hb8d0fd4_0.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/libgfortran-5.0.0-13_2_0_hd922786_1.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/sqlite-3.41.2-h80987f9_0.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/libopenblas-0.3.25-openmp_h6c19121_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/python-3.8.18-hb885b13_0.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/libblas-3.9.0-20_osxarm64_openblas.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/python_abi-3.8-2_cp38.tar.bz2
-https://repo.anaconda.com/pkgs/main/osx-arm64/setuptools-68.2.2-py38hca03da5_0.conda
-https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.2.0-pyha21a80b_0.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/wheel-0.41.2-py38hca03da5_0.conda
-https://conda.anaconda.org/conda-forge/noarch/joblib-1.3.2-pyhd8ed1ab_0.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/libcblas-3.9.0-20_osxarm64_openblas.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/liblapack-3.9.0-20_osxarm64_openblas.conda
-https://repo.anaconda.com/pkgs/main/osx-arm64/pip-23.3.1-py38hca03da5_0.conda
-https://conda.anaconda.org/conda-forge/osx-arm64/numpy-1.21.3-py38hbf7bb01_0.tar.bz2
-https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.7.1-py38hd0c9ec0_0.tar.bz2
-https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.0.1-py38hfeda2c9_1.tar.bz2
+aniso8601==9.0.1
+annotated-types==0.6.0
+antiorm==1.2.1
+anyio==4.2.0
+attrs==23.1.0
+blinker==1.7.0
+click==8.1.7
+db==0.1.1
+db-sqlite3==0.0.1
+exceptiongroup==1.2.0
+Flask==3.0.0
+flask-restx==1.3.0
+Flask-SQLAlchemy==3.1.1
+gunicorn==21.2.0
+h11==0.14.0
+idna==3.6
+importlib-metadata==7.0.1
+importlib-resources==6.1.1
+itsdangerous==2.1.2
+Jinja2==3.1.2
+joblib @ file:///home/conda/feedstock_root/build_artifacts/joblib_1691577114857/work
+jsonschema==4.20.0
+jsonschema-specifications==2023.12.1
+MarkupSafe==2.1.3
+mistune==3.0.2
+numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1634853070724/work
+packaging==23.2
+pkgutil_resolve_name==1.3.10
+pydantic==2.5.3
+pydantic_core==2.14.6
+python-dotenv==1.0.0
+pytz==2023.3.post1
+PyYAML==6.0.1
+referencing==0.32.0
+rpds-py==0.16.2
+scikit-learn @ file:///Users/runner/miniforge3/conda-bld/scikit-learn_1635240801513/work
+scipy @ file:///Users/runner/miniforge3/conda-bld/scipy_1633645172612/work
+six==1.16.0
+sniffio==1.3.0
+SQLAlchemy==2.0.24
+starlette==0.32.0.post1
+threadpoolctl @ file:///home/conda/feedstock_root/build_artifacts/threadpoolctl_1689261241048/work
+typing_extensions==4.9.0
+Werkzeug==3.0.1
+zipp==3.17.0
