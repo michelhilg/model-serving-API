@@ -2,13 +2,13 @@
 
 ## Descrição
 
-O ModelServingAPI é uma aplicação Python que utiliza o framework Flask para fornecer previsões com base em um modelo de aprendizado de máquina pré-treinado (LinearRegression) no formato .joblib. Esta aplicação também utiliza um banco de dados SQLite local (arquivo .db) para armazenar identificadores de solicitações e registra as operações em um arquivo de log em formato .txt.
+O ModelServingFlaskAPI é uma aplicação Python que utiliza o framework Flask e WSGI web-server Gunicorn para fornecer previsões com base em um modelo de aprendizado de máquina pré-treinado no formato .joblib. Esta aplicação utiliza um banco de dados SQLite local (arquivo .sqlite3) para armazenar informações das requisições, interagindo por meio de SQLAlchemy como ORM. A aplicação também registra os logs do server em um arquivo em formato .txt.
 
 ## Pré-requisitos
 
 Os requisitos para executar a aplicação estão inseridos dentro do arquivo `environment.yml `environment.yml que pode ser carregado através do genrenciador de pacotes conda.
 
-**OBS.:** O arquivo foi gerado em um sistema MacOs, podendo levar a conflitos em sistemas Windows ou Linux.
+**OBS.:** O arquivo foi gerado em OS UNIX, podendo levar a conflitos em sistemas Windows.
 
 Como segunda opção, consultar o arquivo `requirements.txt`.
 
@@ -17,27 +17,28 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
 1. **Clone o repositório:**
 
     ```bash
-    git clone https://github.com/seu-usuario/seu-repositorio.git
-    cd seu-repositorio
+    git clone https://github.com/michelhilg/model-serving-flaskAPI.git
+    cd model-serving-flaskAPI
     ```
 
 2. **Instale as dependências:**
 
     ```bash
     conda env create -f environment.yml
-    conda activate my_env
+    conda activate flaskapi
     ```
 
-    Isso criará um ambiente Conda chamado `my_env` com as dependências especificadas no arquivo `environment.yml`.
+    Isso criará um ambiente Conda chamado `flaskapi` com as dependências especificadas no arquivo `environment.yml`.
 
     Ou
 
     ```bash
-    conda create --name my_env --file requirements.txt
-    conda activate my_env
+    conda create --name flaskapi python=3.8
+    conda activate flaskapi
+    pip install -r requirements.txt
     ```
 
-   Isso criará um ambiente Conda chamado `my_env` com base nas especificações no arquivo `requirements.txt`.
+   Isso criará um ambiente Conda chamado `flaskapi` com base nas especificações no arquivo `requirements.txt`.
 
    **OBS.:** Caso encontre problemas, vale a pena conferir a incompatibilidade de OS.
 
@@ -103,9 +104,11 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
     - `w` = Número de workers.
     - `b` = IP e porta do server.
 
-### Rotas
+### Documentação
 
 Você pode acessar as informações da API, como métodos definidos, acessando [http://127.0.0.1:5000/](http://127.0.0.1:5000/) via `Swagger`.
+
+### Rotas
 
 - **`POST /prediction/results`:** Envie dados de features no corpo da solicitação para obter uma previsão. Exemplo de corpo da solicitação:
 
