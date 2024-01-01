@@ -96,7 +96,7 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
     Esse aplicativo usa o server built-in do Flask por estar em modo desenvolvimento, em modo produção é recomendado o uso de um server WSIG como `Gunicorn` com comando abaixo:
 
     ```bash
-    gunicorn --preload -w 4 -b 0.0.0.0:8000 "main:create_app('producon')”
+    gunicorn --preload -w 4 -b 0.0.0.0:8000 "main:create_app('production')”
     ```
 
     Em que:
