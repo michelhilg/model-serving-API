@@ -52,13 +52,12 @@ class PredictResource(Resource):
 
         except ValueError as ve: 
             # Handling value errors caused by invalid input data
-            last_id = db_manager.write_prediction(Prediction, feature_1=None, feature_2=None, predicao=None)
-            logger.error(f"status: 400, id: {last_id}, mensagem de erro: {error_message}")
+            error_message = f"Value error: {str(ve)}"
+            logger.error(f"status: 400, mensagem de erro: {error_message}")
             return jsonify({"error": error_message}), 400
 
         except Exception as e:
             # Handling unexpected errors
             error_message = f"Unexpected error: {str(e)}"
-            last_id = db_manager.write_prediction(Prediction, feature_1=None, feature_2=None, predicao=None)
-            logger.error(f"status: 500, id: {last_id}, mensagem de erro: {error_message}")
+            logger.error(f"status: unexpected error, mensagem de erro: {error_message}")
             return jsonify({"error": error_message}), 500
