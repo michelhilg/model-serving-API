@@ -2,7 +2,7 @@
 
 ## Descrição
 
-O ModelServingFlaskAPI é uma aplicação Python que utiliza o framework Flask e WSGI web-server Gunicorn para fornecer previsões com base em um modelo de aprendizado de máquina pré-treinado no formato .joblib. Esta aplicação utiliza um banco de dados SQLite local (arquivo .sqlite3) para armazenar informações das requisições, interagindo por meio de SQLAlchemy como ORM. A aplicação também registra os logs do server em um arquivo em formato .txt.
+O ModelServingFlaskAPI é uma aplicação Python que utiliza o framework Flask e WSGI web-server Gunicorn para fornecer previsões com base em um modelo de aprendizado de máquina pré-treinado no formato .joblib `(1.1.0)` do tipo scikit-learn `(1.0.1)`. Esta aplicação utiliza um banco de dados SQLite local (arquivo .sqlite3) para armazenar informações das requisições, interagindo por meio de SQLAlchemy como ORM. A aplicação também registra os logs do server em um arquivo em formato .txt.
 
 ## Pré-requisitos
 
@@ -74,7 +74,7 @@ Como segunda opção, consultar o arquivo `requirements.txt`.
 
     Certifique-se de disponibilizar o modelo de machine learning adequado para aplicação, seguindo requisitos essenciais:
 
-    - Formato: `.joblib`
+    - Formato: `.joblib` `(1.1.0)`
     - Versão scikit-learn: `1.0.1`
 
     Arquitetura testada foi a LinearRegression, porém outras arquiteturas que recebam duas features de entrada também são compatíveis.
